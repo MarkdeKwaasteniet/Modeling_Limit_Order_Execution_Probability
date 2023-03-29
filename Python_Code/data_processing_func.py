@@ -180,21 +180,6 @@ class DataProcessor:
             self.df_orders_placed['sold_orders']))), 'order_placed'] = (
                 self.df_orders_placed['sold_orders'] + self.df_orders_placed['quantity_change'])
 
-        # self.df_orders_placed.loc[(self.df_orders_placed['quantity_change'] < 0) & (
-        #         abs(self.df_orders_placed['quantity_change']) > abs(
-        #     self.df_orders_placed['sold_orders'])), 'order_subtraction'] = self.df_orders_placed[
-        #     'quantity_change']
-        # self.df_orders_placed['order_subtraction'] = self.df_orders_placed[
-        #     'order_subtraction'].fillna(0)
-        #
-        # self.df_orders_placed.loc[
-        #     (self.df_orders_placed['quantity_change'] > 0), 'order_placed'] = (
-        #         self.df_orders_placed['sold_orders'] + self.df_orders_placed['quantity_change'])
-        # self.df_orders_placed.loc[((self.df_orders_placed['quantity_change'] < 0) & (
-        #         abs(self.df_orders_placed['quantity_change']) < abs(
-        #     self.df_orders_placed['sold_orders']))), 'order_placed'] = (
-        #         self.df_orders_placed['sold_orders'] + self.df_orders_placed['quantity_change'])
-
     def threshold_finder(self, placed_order, order_size=False):
         if not order_size:
             threshold = self.df_orders_placed.loc[str(placed_order.timestamp)].order_quantity
@@ -334,50 +319,6 @@ class DataProcessor:
 
         df_merged.drop(columns=['timestamp']).to_csv(
             os.path.join(self.folder_path, "BTC Execution Times.csv"))
-
-        # df_check = {}
-        # types_dict = {"bid": -1, "ask": 1}
-        # columns_list = ['sold_orders', 'order_subtraction', 'order_placed', 'timestamp_execution']
-        #
-        # df_trades_executed = pd.DataFrame(index=df_trades.index)
-        #
-        # for c, item in types_dict.items():
-        #     df_trades_executed[c] = df_trade_volume.loc[df_trade_volume['type'] == item].volume
-        #     self.df_orders_placed = df_orderbook.iloc[:, ((item + 1) * 10 + 10)].diff()
-        #     custom_dates = orderbook_data.index
-        #     custom_sum = df_trades_executed[c].groupby(
-        #         custom_dates[custom_dates.searchsorted(df_trades_executed[c].index)]).sum()
-        #     self.df_orders_placed = self.df_orders_placed.to_frame().join(custom_sum.to_frame())
-        #     self.df_orders_placed = self.df_orders_placed.reset_index()
-        #     self.df_orders_placed['timestamp_shift'] = self.df_orders_placed.timestamp.shift(
-        #         -1).dropna()
-        #
-        #     self.df_orders_placed.rename(
-        #         columns={self.df_orders_placed.columns[1]: "quantity_change"},
-        #         inplace=True)
-        #     self.df_orders_placed = self.df_orders_placed.iloc[:(len(df_orderbook) - 1), :]
-        #     for column in columns_list:
-        #         self.df_orders_placed[column] = np.nan
-        #
-        #     self.df_orders_placed['sold_orders'] = self.df_orders_placed[c]
-        #     self.df_orders_placed['sold_orders'] = self.df_orders_placed['sold_orders'].fillna(0)
-        #     self.df_orders_placed = self.df_orders_placed.drop(columns=c)
-        #     self.order_placement(c)
-        #
-        #     self.df_orders_placed = self.df_orders_placed.set_index(self.df_orders_placed.timestamp)
-        #     self.df_orders_placed['order_quantity'] = df_orderbook.iloc[:, ((item + 1) * 10 + 10)]
-        #
-        #     self.execution_date()
-        #
-        #     self.df_orders_placed = self.df_orders_placed.join(
-        #         df_orderbook.iloc[:, ((item + 1) * 10)])
-        #     self.df_orders_placed.rename(columns={self.df_orders_placed.columns[8]: "price"},
-        #                                  inplace=True)
-        #     self.df_orders_placed = self.df_orders_placed.iloc[:, 5:]
-        #     df_check[c] = self.df_orders_placed
-        # df_merged = df_check['bid'].join(df_check['ask'], lsuffix='_bid', rsuffix='_ask')
-        #
-        # df_merged.to_csv(os.path.join(self.folder_path, "BTC Execution Times.csv"))
 
 
 FOLDER = r"C:\Users\markkw\Documents\GitHub\Modeling Limit Order Execution Probability\BTC_Data"
