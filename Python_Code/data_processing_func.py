@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
+from datetime import timedelta
 import h5py
 import os
 
@@ -230,7 +231,7 @@ class DataProcessor:
         # return
 
     def volume_summation(self, placed_order, column):
-        past_minute = placed_order.timestamp - datetime.timedelta(seconds=1)
+        past_minute = placed_order.timestamp - timedelta(seconds=1)
         df_past_volume = self.df_orders_placed.loc[
                          str(past_minute):str(placed_order.timestamp)].iloc[:, :]
         return df_past_volume[column].sum()
@@ -247,8 +248,7 @@ class DataProcessor:
             mask].apply(
             lambda placed_order: self.threshold_finder(placed_order), axis=1)
         self.df_orders_placed.loc[mask, 'past_taking_volume'] = self.df_orders_placed.loc[mask].apply(
-            lambda placed_order: self.volume_summation(placed_order, self.df_orders_placed,
-                                                       "sold_orders"),
+            lambda placed_order: self.volume_summation(placed_order, "sold_orders"),
             axis=1)
         self.df_orders_placed.loc[mask, 'past_making_volume'] = self.df_orders_placed.loc[
             mask].apply(
@@ -275,6 +275,7 @@ class DataProcessor:
         self.df_orders_placed['inventory_bid'] = df_orderbook.iloc[:, 10:20].sum(axis=1)
         self.df_orders_placed['inventory_ask'] = df_orderbook.iloc[:, 30:40].sum(axis=1)
         self.df_orders_placed['imbalance'] = price_calculator.calc_imbalance()
+        self.df_orders_placed = self.df_orders_placed.reset_index()
 
     def calc_execution_time(self, df_trades, df_orderbook, coins, execution_sec, size_vector):
         df_check = {}
@@ -319,7 +320,7 @@ class DataProcessor:
 
             self.keep_columns(c)
 
-            self.additional_variables(df_orderbook, coins).reset_index()
+            self.additional_variables(df_orderbook, coins)
             df_check[c] = self.df_orders_placed[self.df_orders_placed['order_placed'].notna()]
 
         df_merged = pd.concat([df_check['bid'], df_check['ask']], ignore_index=True)
@@ -327,8 +328,7 @@ class DataProcessor:
             df_merged["timestamp_execution_" + str(make_size)] = pd.to_datetime(
                 df_merged["timestamp_execution_" + str(make_size)])
             df_merged["execution_" + str(make_size)] = 0
-            df_merged.loc[(df_merged["timestamp_execution_" + str(make_size)] - df_merged[
-                'timestamp'] < datetime.timedelta(seconds=execution_sec)), "execution_" + str(
+            df_merged.loc[(df_merged["timestamp_execution_" + str(make_size)] - df_merged['timestamp'] < timedelta(seconds=execution_sec)), "execution_" + str(
                 make_size)] = 1
             df_merged = df_merged.drop(columns=["timestamp_execution_" + str(make_size)])
 
